@@ -37,7 +37,7 @@ assert() {
 	}
 }
 
-readbin() { "${dir0}/readbin.sh" "$@" ; }
+alias readbin="'${dir0}/readbin.sh'"
 
 ## $1 - struct
 ## $2 - field
@@ -752,16 +752,16 @@ read_elf_header() {
 	"ELF signature"
 
 	## parse ElfXX_Ehdr.e_ident.ei_class
-	vei_class=$(elf_value "${struct}.ei_class" ${ei_class})
+	vei_class=$(elf_value ${struct}.ei_class ${ei_class})
 	bits=$(decode_elfehdr_eiclass ${vei_class} ${ei_class})
 	ptr_size=$((bits / 8))
 
 	## parse ElfXX_Ehdr.e_ident.ei_data
-	vei_data=$(elf_value "${struct}.ei_data" ${ei_data})
+	vei_data=$(elf_value ${struct}.ei_data ${ei_data})
 	endian=$(decode_elfehdr_eidata ${vei_data} ${ei_data})
 
 	## parse ElfXX_Ehdr.e_ident.ei_version
-	vei_version=$(elf_value "${struct}.ei_version" ${ei_version})
+	vei_version=$(elf_value ${struct}.ei_version ${ei_version})
 	case "${vei_version}" in
 	none) err "incorrect ELF header version: '${vei_version}'" ;;
 	1) ;;
@@ -769,7 +769,7 @@ read_elf_header() {
 	esac
 
 	## parse ElfXX_Ehdr.e_ident.ei_osabi
-	vei_osabi=$(elf_value "${struct}.ei_osabi" ${ei_osabi})
+	vei_osabi=$(elf_value ${struct}.ei_osabi ${ei_osabi})
 	case "${vei_osabi}" in
 	sysv|gnu) ;;
 	*) err "unsupported ELF OS ABI: ${vei_osabi}" ;;
@@ -790,7 +790,7 @@ read_elf_header() {
 	EOF
 
 	## parse ElfXX_Ehdr.e_type
-	ve_type=$(elf_value "${struct}.e_type" ${e_type})
+	ve_type=$(elf_value ${struct}.e_type ${e_type})
 	case "${ve_type}" in
 	none) err "incorrect ELF file type: '${ve_type}'" ;;
 	rel|exe|dyn) ;;
@@ -798,7 +798,7 @@ read_elf_header() {
 	esac
 
 	## parse ElfXX_Ehdr.e_machine
-	ve_machine=$(elf_value "${struct}.e_machine" ${e_machine})
+	ve_machine=$(elf_value ${struct}.e_machine ${e_machine})
 	case "${ve_machine}" in
 	none) err "incorrect ELF arch type: '${ve_machine}'" ;;
 	i386|amd64|mips) ;;
@@ -806,7 +806,7 @@ read_elf_header() {
 	esac
 
 	## parse ElfXX_Ehdr.e_version
-	ve_version=$(elf_value "${struct}.e_version" ${e_version})
+	ve_version=$(elf_value ${struct}.e_version ${e_version})
 	case "${ve_version}" in
 	none) err "incorrect ELF format version: '${ve_version}'" ;;
 	1) ;;
@@ -892,9 +892,6 @@ read_elf_pht() {
 		d=$(readbin "i:$1" ${endian} p:${offset} ${layout})
 		assert "unable to read data: 'p:${offset} ${layout}'"
 
-		p_align='' p_filesz='' p_flags='' p_memsz='' p_offset=''
-		p_paddr='' p_type='' p_vaddr=''
-
 		case "${bits}" in
 		32)
 			read -r p_type p_offset p_vaddr p_paddr p_filesz p_memsz p_flags p_align <<-EOF
@@ -909,11 +906,11 @@ read_elf_pht() {
 		esac
 
 		## parse ElfXX_Phdr.p_type
-		vp_type=$(elf_value "${struct}.p_type" ${p_type})
+		vp_type=$(elf_value ${struct}.p_type ${p_type})
 		vp_type=${vp_type:-${p_type}}
 
 		## parse ElfXX_Phdr.p_flags
-		vp_flags=$(elf_flag Elf_Phdr.p_flags ${p_flags})
+		vp_flags=$(elf_flag ${struct}.p_flags ${p_flags})
 
 		sed -E "s/^/Elf_Phdr.$i./" <<-EOF
 		p_type ${vp_type}
@@ -1000,7 +997,7 @@ read_elf_dt() {
 		EOF
 
 		## parse ElfXX_Dyn.d_tag
-		vd_tag=$(elf_value "${struct}.d_tag" ${d_tag})
+		vd_tag=$(elf_value ${struct}.d_tag ${d_tag})
 
 		## handle ElfXX_Dyn.d_val
 		vd_val=${d_val}
