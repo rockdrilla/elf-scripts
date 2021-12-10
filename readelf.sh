@@ -145,14 +145,14 @@ elf_value() {
 
 		ET_LOOS=0xFE00 ; ET_HIOS=0xFEFF
 		if in_range $v ${ET_LOOS} ${ET_HIOS} ; then
-			c=$(base_value $v ET_LOOS ${ET_LOOS})
-			p=$(base_value $v os_spec ${ET_LOOS})
+			c=$(base_value $v ET_LOOS  ${ET_LOOS})
+			p=$(base_value $v _os_spec ${ET_LOOS})
 		fi
 
 		ET_LOPROC=0xFF00 ; ET_HIPROC=0xFFFF
 		if in_range $v ${ET_LOPROC} ${ET_HIPROC} ; then
-			c=$(base_value $v ET_LOPROC ${ET_LOPROC})
-			p=$(base_value $v proc_spec ${ET_LOPROC})
+			c=$(base_value $v ET_LOPROC  ${ET_LOPROC})
+			p=$(base_value $v _proc_spec ${ET_LOPROC})
 		fi
 	;;
 	Elf_Ehdr.e_machine)
@@ -190,8 +190,8 @@ elf_value() {
 
 		PT_LOOS=0x60000000 ; PT_HIOS=0x6FFFFFFF
 		if in_range $v ${PT_LOOS} ${PT_HIOS} ; then
-			c=$(base_value $v PT_LOOS ${PT_LOOS})
-			p=$(base_value $v os_spec ${PT_LOOS})
+			c=$(base_value $v PT_LOOS  ${PT_LOOS})
+			p=$(base_value $v _os_spec ${PT_LOOS})
 
 			PT_GNU_LO=$((PT_LOOS + 0x0474E550))
 			PT_GNU_HI=$((PT_LOOS + 0x0474E553))
@@ -213,7 +213,7 @@ elf_value() {
 
 				if in_range $v ${PT_GNU_MBIND_LO} ${PT_GNU_MBIND_HI} ; then
 					c=$(base_value $v PT_GNU_MBIND_LO ${PT_GNU_MBIND_LO})
-					p=$(base_value $v gnu_mbind       ${PT_GNU_MBIND_LO})
+					p=$(base_value $v _gnu_mbind      ${PT_GNU_MBIND_LO})
 				fi
 			;;
 			esac
@@ -221,8 +221,8 @@ elf_value() {
 
 		PT_LOPROC=0x70000000 ; PT_HIPROC=0x7FFFFFFF
 		if in_range $v ${PT_LOPROC} ${PT_HIPROC} ; then
-			c=$(base_value $v PT_LOPROC ${PT_LOPROC})
-			p=$(base_value $v proc_spec ${PT_LOPROC})
+			c=$(base_value $v PT_LOPROC  ${PT_LOPROC})
+			p=$(base_value $v _proc_spec ${PT_LOPROC})
 
 			## arch-specific code here
 		fi
@@ -267,8 +267,8 @@ elf_value() {
 
 		DT_LOOS=0x6000000D ; DT_HIOS=0x6FFFF000
 		if in_range $v ${DT_LOOS} ${DT_HIOS} ; then
-			c=$(base_value $v DT_LOOS ${DT_LOOS})
-			p=$(base_value $v os_spec ${DT_LOOS})
+			c=$(base_value $v DT_LOOS  ${DT_LOOS})
+			p=$(base_value $v _os_spec ${DT_LOOS})
 		fi
 
 		DT_VALRNGHI=0x6FFFFDFF
@@ -278,7 +278,7 @@ elf_value() {
 			## top to bottom allocation!
 			v=$((DT_VALRNGHI - v))
 			c="DT_VALTAG $v"
-			p="valtag $v"
+			p="_valtag $v"
 
 			case "$v" in
 			 0) c=DT_SYMINENT       ; p=syminent       ;;
@@ -303,7 +303,7 @@ elf_value() {
 			## top to bottom allocation!
 			v=$((DT_ADDRRNGHI - v))
 			c="DT_ADDRTAG $v"
-			p="addrtag $v"
+			p="_addrtag $v"
 
 			case "$v" in
 			 0) c=DT_SYMINFO      ; p=syminfo      ;;
@@ -327,7 +327,7 @@ elf_value() {
 			## top to bottom allocation!
 			v=$((DT_VERSIONHI - v))
 			c="DT_VERSIONTAG $v"
-			p="versiontag $v"
+			p="_versiontag $v"
 
 			case "$v" in
 			 0) c=DT_VERNEEDNUM ; p=verneednum ;;
@@ -343,8 +343,8 @@ elf_value() {
 
 		DT_LOPROC=0x70000000 ; DT_HIPROC=0x7FFFFFFF
 		if in_range $v ${DT_LOPROC} ${DT_HIPROC} ; then
-			c=$(base_value $v DT_LOPROC ${DT_LOPROC})
-			p=$(base_value $v proc_spec ${DT_LOPROC})
+			c=$(base_value $v DT_LOPROC  ${DT_LOPROC})
+			p=$(base_value $v _proc_spec ${DT_LOPROC})
 
 			## nobody knows why Sun put these sections in proc-specific range
 			## ("because we CAN", lol)
@@ -355,7 +355,7 @@ elf_value() {
 				## top to bottom allocation!
 				v=$((DT_EXTRAHI - v))
 				c="DT_EXTRATAG $v"
-				p="extratag $v"
+				p="_extratag $v"
 
 				case "$v" in
 				0) c=DT_FILTER    ; p=filter    ;;
@@ -487,30 +487,30 @@ elf_flag() {
 			_c='' ; _p=''
 			case "${_v}" in
 			0x00) ;;
-			0x81) _c=EF_MIPS_MACH_3900    ; _p=3900    ;;
-			0x82) _c=EF_MIPS_MACH_4010    ; _p=4010    ;;
-			0x83) _c=EF_MIPS_MACH_4100    ; _p=4100    ;;
-			0x85) _c=EF_MIPS_MACH_4650    ; _p=4650    ;;
-			0x87) _c=EF_MIPS_MACH_4120    ; _p=4120    ;;
-			0x88) _c=EF_MIPS_MACH_4111    ; _p=4111    ;;
-			0x8A) _c=EF_MIPS_MACH_SB1     ; _p=sb1     ;;
-			0x8B) _c=EF_MIPS_MACH_OCTEON  ; _p=octeon  ;;
-			0x8C) _c=EF_MIPS_MACH_XLR     ; _p=xlr     ;;
-			0x8D) _c=EF_MIPS_MACH_OCTEON2 ; _p=octeon2 ;;
-			0x8E) _c=EF_MIPS_MACH_OCTEON3 ; _p=octeon3 ;;
-			0x91) _c=EF_MIPS_MACH_5400    ; _p=5400    ;;
-			0x92) _c=EF_MIPS_MACH_5900    ; _p=5900    ;;
-			0x93) _c=EF_MIPS_MACH_IAMR2   ; _p=iamr2   ;;
-			0x98) _c=EF_MIPS_MACH_5500    ; _p=5500    ;;
-			0x99) _c=EF_MIPS_MACH_9000    ; _p=9000    ;;
-			0xA0) _c=EF_MIPS_MACH_LS2E    ; _p=ls2e    ;;
-			0xA1) _c=EF_MIPS_MACH_LS2F    ; _p=ls2f    ;;
-			0xA2) _c=EF_MIPS_MACH_GS464   ; _p=gs464   ;;
-			0xA3) _c=EF_MIPS_MACH_GS464E  ; _p=gs464e  ;;
-			0xA4) _c=EF_MIPS_MACH_GS264E  ; _p=gs264e  ;;
+			0x81) _c=EF_MIPS_MACH_3900    ; _p=cpu_3900    ;;
+			0x82) _c=EF_MIPS_MACH_4010    ; _p=cpu_4010    ;;
+			0x83) _c=EF_MIPS_MACH_4100    ; _p=cpu_4100    ;;
+			0x85) _c=EF_MIPS_MACH_4650    ; _p=cpu_4650    ;;
+			0x87) _c=EF_MIPS_MACH_4120    ; _p=cpu_4120    ;;
+			0x88) _c=EF_MIPS_MACH_4111    ; _p=cpu_4111    ;;
+			0x8A) _c=EF_MIPS_MACH_SB1     ; _p=cpu_sb1     ;;
+			0x8B) _c=EF_MIPS_MACH_OCTEON  ; _p=cpu_octeon  ;;
+			0x8C) _c=EF_MIPS_MACH_XLR     ; _p=cpu_xlr     ;;
+			0x8D) _c=EF_MIPS_MACH_OCTEON2 ; _p=cpu_octeon2 ;;
+			0x8E) _c=EF_MIPS_MACH_OCTEON3 ; _p=cpu_octeon3 ;;
+			0x91) _c=EF_MIPS_MACH_5400    ; _p=cpu_5400    ;;
+			0x92) _c=EF_MIPS_MACH_5900    ; _p=cpu_5900    ;;
+			0x93) _c=EF_MIPS_MACH_IAMR2   ; _p=cpu_iamr2   ;;
+			0x98) _c=EF_MIPS_MACH_5500    ; _p=cpu_5500    ;;
+			0x99) _c=EF_MIPS_MACH_9000    ; _p=cpu_9000    ;;
+			0xA0) _c=EF_MIPS_MACH_LS2E    ; _p=cpu_ls2e    ;;
+			0xA1) _c=EF_MIPS_MACH_LS2F    ; _p=cpu_ls2f    ;;
+			0xA2) _c=EF_MIPS_MACH_GS464   ; _p=cpu_gs464   ;;
+			0xA3) _c=EF_MIPS_MACH_GS464E  ; _p=cpu_gs464e  ;;
+			0xA4) _c=EF_MIPS_MACH_GS264E  ; _p=cpu_gs264e  ;;
 			*)
 				_c=$(hex_pad $((_v << 16)) 0x10000000)
-				_p="unknown_cpu_${_v}"
+				_p="_cpu_${_v}"
 			;;
 			esac
 			c=$(echo $c ${_c}) ; p=$(echo $p ${_p})
@@ -522,20 +522,20 @@ elf_flag() {
 			_v=$(printf '0x%02x' ${_v})
 			_c='' ; _p=''
 			case "${_v}" in
-			0x00) _c=EF_MIPS_ARCH_1    ; _p=mips1    ;;
-			0x01) _c=EF_MIPS_ARCH_2    ; _p=mips2    ;;
-			0x02) _c=EF_MIPS_ARCH_3    ; _p=mips3    ;;
-			0x03) _c=EF_MIPS_ARCH_4    ; _p=mips4    ;;
-			0x04) _c=EF_MIPS_ARCH_5    ; _p=mips5    ;;
-			0x05) _c=EF_MIPS_ARCH_32   ; _p=mips32   ;;
-			0x06) _c=EF_MIPS_ARCH_64   ; _p=mips64   ;;
-			0x07) _c=EF_MIPS_ARCH_32R2 ; _p=mips32r2 ;;
-			0x08) _c=EF_MIPS_ARCH_64R2 ; _p=mips64r2 ;;
-			0x09) _c=EF_MIPS_ARCH_32R6 ; _p=mips32r6 ;;
-			0x0A) _c=EF_MIPS_ARCH_64R6 ; _p=mips64r6 ;;
+			0x00) _c=EF_MIPS_ARCH_1    ; _p=isa_mips1    ;;
+			0x01) _c=EF_MIPS_ARCH_2    ; _p=isa_mips2    ;;
+			0x02) _c=EF_MIPS_ARCH_3    ; _p=isa_mips3    ;;
+			0x03) _c=EF_MIPS_ARCH_4    ; _p=isa_mips4    ;;
+			0x04) _c=EF_MIPS_ARCH_5    ; _p=isa_mips5    ;;
+			0x05) _c=EF_MIPS_ARCH_32   ; _p=isa_mips32   ;;
+			0x06) _c=EF_MIPS_ARCH_64   ; _p=isa_mips64   ;;
+			0x07) _c=EF_MIPS_ARCH_32R2 ; _p=isa_mips32r2 ;;
+			0x08) _c=EF_MIPS_ARCH_64R2 ; _p=isa_mips64r2 ;;
+			0x09) _c=EF_MIPS_ARCH_32R6 ; _p=isa_mips32r6 ;;
+			0x0A) _c=EF_MIPS_ARCH_64R6 ; _p=isa_mips64r6 ;;
 			*)
 				_c=$(hex_pad $((_v << 28)) 0x10000000)
-				_p="unknown_isa_${_v}"
+				_p="_isa_${_v}"
 			;;
 			esac
 			c=$(echo $c ${_c}) ; p=$(echo $p ${_p})
@@ -548,13 +548,13 @@ elf_flag() {
 			_c='' ; _p=''
 			case "${_v}" in
 			0x00) ;;
-			0x01) _c=EF_MIPS_ABI_O32    ; _p=o32    ;;
-			0x02) _c=EF_MIPS_ABI_O64    ; _p=o64    ;;
-			0x03) _c=EF_MIPS_ABI_EABI32 ; _p=eabi32 ;;
-			0x04) _c=EF_MIPS_ABI_EABI64 ; _p=eabi64 ;;
+			0x01) _c=EF_MIPS_ABI_O32    ; _p=abi_o32    ;;
+			0x02) _c=EF_MIPS_ABI_O64    ; _p=abi_o64    ;;
+			0x03) _c=EF_MIPS_ABI_EABI32 ; _p=abi_eabi32 ;;
+			0x04) _c=EF_MIPS_ABI_EABI64 ; _p=abi_eabi64 ;;
 			*)
 				_c=$(hex_pad $((_v << 12)) 0x10000000)
-				_p="unknown_abi_${_v}"
+				_p="_abi_${_v}"
 			;;
 			esac
 			c=$(echo $c ${_c}) ; p=$(echo $p ${_p})
@@ -576,9 +576,9 @@ elf_flag() {
 			$((1 <<  8))  EF_MIPS_32BITMODE      32bitmode
 			$((1 <<  9))  EF_MIPS_FP64           fp64
 			$((1 << 10))  EF_MIPS_NAN2008        nan2008
-			$((1 << 25))  EF_MIPS_MICROMIPS      micromips
-			$((1 << 26))  EF_MIPS_ARCH_ASE_M16   mips16
-			$((1 << 27))  EF_MIPS_ARCH_ASE_MDMX  mdmx
+			$((1 << 25))  EF_MIPS_MICROMIPS      ase_micromips
+			$((1 << 26))  EF_MIPS_ARCH_ASE_M16   ase_mips16
+			$((1 << 27))  EF_MIPS_ARCH_ASE_MDMX  ase_mdmx
 			EOF
 
 
@@ -588,7 +588,7 @@ elf_flag() {
 			if [ ${_v} -ne 0 ] ; then
 				_c=$(hex_pad $((_v << 24)) 0x10000000)
 				_v=$(printf '0x%02x' ${_v})
-				_p="unknown_ase_${_v}"
+				_p="_ase_${_v}"
 			fi
 			c=$(echo $c ${_c}) ; p=$(echo $p ${_p})
 		;;
