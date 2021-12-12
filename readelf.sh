@@ -226,7 +226,16 @@ elf_value() {
 			c=$(base_value $v PT_LOPROC  ${PT_LOPROC})
 			p=$(base_value $v _proc_spec ${PT_LOPROC})
 
-			## arch-specific code here
+			case "${_arch}" in
+			mips)
+				case $((v - PT_LOPROC)) in
+				0) c=PT_MIPS_REGINFO  ; p=mips_reginfo  ;;
+				1) c=PT_MIPS_RTPROC   ; p=mips_rtproc   ;;
+				2) c=PT_MIPS_OPTIONS  ; p=mips_options  ;;
+				3) c=PT_MIPS_ABIFLAGS ; p=mips_abiflags ;;
+				esac
+			;;
+			esac
 		fi
 	;;
 	Elf_Dyn.d_tag)
@@ -367,18 +376,69 @@ elf_value() {
 			fi
 
 			case "${_arch}" in
+			mips)
+				case $((v - DT_LOPROC)) in
+				 1) c=DT_MIPS_RLD_VERSION           ; p=mips_rld_version           ;;
+				 2) c=DT_MIPS_TIME_STAMP            ; p=mips_time_stamp            ;;
+				 3) c=DT_MIPS_ICHECKSUM             ; p=mips_ichecksum             ;;
+				 4) c=DT_MIPS_IVERSION              ; p=mips_iversion              ;;
+				 5) c=DT_MIPS_FLAGS                 ; p=mips_flags                 ;;
+				 6) c=DT_MIPS_BASE_ADDRESS          ; p=mips_base_address          ;;
+				 7) c=DT_MIPS_MSYM                  ; p=mips_msym                  ;;
+				 8) c=DT_MIPS_CONFLICT              ; p=mips_conflict              ;;
+				 9) c=DT_MIPS_LIBLIST               ; p=mips_liblist               ;;
+				10) c=DT_MIPS_LOCAL_GOTNO           ; p=mips_local_gotno           ;;
+				11) c=DT_MIPS_CONFLICTNO            ; p=mips_conflictno            ;;
+				16) c=DT_MIPS_LIBLISTNO             ; p=mips_liblistno             ;;
+				17) c=DT_MIPS_SYMTABNO              ; p=mips_symtabno              ;;
+				18) c=DT_MIPS_UNREFEXTNO            ; p=mips_unrefextno            ;;
+				19) c=DT_MIPS_GOTSYM                ; p=mips_gotsym                ;;
+				20) c=DT_MIPS_HIPAGENO              ; p=mips_hipageno              ;;
+				22) c=DT_MIPS_RLD_MAP               ; p=mips_rld_map               ;;
+				23) c=DT_MIPS_DELTA_CLASS           ; p=mips_delta_class           ;;
+				24) c=DT_MIPS_DELTA_CLASS_NO        ; p=mips_delta_class_no        ;;
+				25) c=DT_MIPS_DELTA_INSTANCE        ; p=mips_delta_instance        ;;
+				26) c=DT_MIPS_DELTA_INSTANCE_NO     ; p=mips_delta_instance_no     ;;
+				27) c=DT_MIPS_DELTA_RELOC           ; p=mips_delta_reloc           ;;
+				28) c=DT_MIPS_DELTA_RELOC_NO        ; p=mips_delta_reloc_no        ;;
+				29) c=DT_MIPS_DELTA_SYM             ; p=mips_delta_sym             ;;
+				30) c=DT_MIPS_DELTA_SYM_NO          ; p=mips_delta_sym_no          ;;
+				32) c=DT_MIPS_DELTA_CLASSSYM        ; p=mips_delta_classsym        ;;
+				33) c=DT_MIPS_DELTA_CLASSSYM_NO     ; p=mips_delta_classsym_no     ;;
+				34) c=DT_MIPS_CXX_FLAGS             ; p=mips_cxx_flags             ;;
+				35) c=DT_MIPS_PIXIE_INIT            ; p=mips_pixie_init            ;;
+				36) c=DT_MIPS_SYMBOL_LIB            ; p=mips_symbol_lib            ;;
+				37) c=DT_MIPS_LOCALPAGE_GOTIDX      ; p=mips_localpage_gotidx      ;;
+				38) c=DT_MIPS_LOCAL_GOTIDX          ; p=mips_local_gotidx          ;;
+				39) c=DT_MIPS_HIDDEN_GOTIDX         ; p=mips_hidden_gotidx         ;;
+				40) c=DT_MIPS_PROTECTED_GOTIDX      ; p=mips_protected_gotidx      ;;
+				41) c=DT_MIPS_OPTIONS               ; p=mips_options               ;;
+				42) c=DT_MIPS_INTERFACE             ; p=mips_interface             ;;
+				43) c=DT_MIPS_DYNSTR_ALIGN          ; p=mips_dynstr_align          ;;
+				44) c=DT_MIPS_INTERFACE_SIZE        ; p=mips_interface_size        ;;
+				45) c=DT_MIPS_RLD_TEXT_RESOLVE_ADDR ; p=mips_rld_text_resolve_addr ;;
+				46) c=DT_MIPS_PERF_SUFFIX           ; p=mips_perf_suffix           ;;
+				47) c=DT_MIPS_COMPACT_SIZE          ; p=mips_compact_size          ;;
+				48) c=DT_MIPS_GP_VALUE              ; p=mips_gp_value              ;;
+				49) c=DT_MIPS_AUX_DYNAMIC           ; p=mips_aux_dynamic           ;;
+				50) c=DT_MIPS_PLTGOT                ; p=mips_pltgot                ;;
+				52) c=DT_MIPS_RWPLT                 ; p=mips_rwplt                 ;;
+				53) c=DT_MIPS_RLD_MAP_REL           ; p=mips_rld_map_rel           ;;
+				54) c=DT_MIPS_XHASH                 ; p=mips_xhash                 ;;
+				esac
+			;;
 			ppc)
 				case $((v - DT_LOPROC)) in
-				0) c=DT_PPC_GOT ; p=got ;;
-				1) c=DT_PPC_OPT ; p=opt ;;
+				0) c=DT_PPC_GOT ; p=ppc_got ;;
+				1) c=DT_PPC_OPT ; p=ppc_opt ;;
 				esac
 			;;
 			ppc64)
 				case $((v - DT_LOPROC)) in
-				0) c=DT_PPC64_GLINK ; p=got   ;;
-				1) c=DT_PPC64_OPD   ; p=opd   ;;
-				2) c=DT_PPC64_OPDSZ ; p=opdsz ;;
-				3) c=DT_PPC64_OPT   ; p=opt   ;;
+				0) c=DT_PPC64_GLINK ; p=ppc64_got   ;;
+				1) c=DT_PPC64_OPD   ; p=ppc64_opd   ;;
+				2) c=DT_PPC64_OPDSZ ; p=ppc64_opdsz ;;
+				3) c=DT_PPC64_OPT   ; p=ppc64_opt   ;;
 				esac
 			;;
 			esac
@@ -609,6 +669,13 @@ elf_flag() {
 			$((1 << 15))  EF_PPC_RELOCATABLE_LIB  relocatable_lib
 			EOF
 		;;
+		ppc64)
+			EF_PPC64_ABI=3
+			_v=$((v & EF_PPC64_ABI))
+			if [ ${_v} -ne 0 ] ; then
+				c="EF_PPC64_ABI${_v}" ; p="ppc64_abi${_v}"
+			fi
+		;;
 		esac
 	;;
 	Elf_Phdr.p_flags)
@@ -702,6 +769,29 @@ elf_flag() {
 		$((1 << 2))  DF_TEXTREL     textrel
 		$((1 << 3))  DF_BIND_NOW    bind_now
 		$((1 << 4))  DF_STATIC_TLS  static_tls
+		EOF
+	;;
+	Elf_Dyn.d_val+mips_flags)
+		while read -r f_v f_c f_p ; do
+			IFS='|' read -r v c p <<-EOF
+			$(elf_xflag $v "$c" "$p" ${f_v} ${f_c} ${f_p})
+			EOF
+		done <<-EOF
+		$((1 <<  0))  RHF_QUICKSTART              quickstart
+		$((1 <<  1))  RHF_NOTPOT                  notpot
+		$((1 <<  2))  RHF_NO_LIBRARY_REPLACEMENT  no_library_replacement
+		$((1 <<  3))  RHF_NO_MOVE                 no_move
+		$((1 <<  4))  RHF_SGI_ONLY                sgi_only
+		$((1 <<  5))  RHF_GUARANTEE_INIT          guarantee_init
+		$((1 <<  6))  RHF_DELTA_C_PLUS_PLUS       delta_c_plus_plus
+		$((1 <<  7))  RHF_GUARANTEE_START_INIT    guarantee_start_init
+		$((1 <<  8))  RHF_PIXIE                   pixie
+		$((1 <<  9))  RHF_DEFAULT_DELAY_LOAD      default_delay_load
+		$((1 << 10))  RHF_REQUICKSTART            requickstart
+		$((1 << 11))  RHF_REQUICKSTARTED          requickstarted
+		$((1 << 12))  RHF_CORD                    cord
+		$((1 << 13))  RHF_NO_UNRES_UNDEF          no_unres_undef
+		$((1 << 14))  RHF_RLD_ORDER_SAFE          rld_order_safe
 		EOF
 	;;
 	*) err "unknown field name: '${_field}'" ;;
@@ -807,7 +897,7 @@ read_elf_header() {
 	ve_machine=$(elf_value ${struct}.e_machine ${e_machine})
 	case "${ve_machine}" in
 	none) err "incorrect ELF arch type: '${ve_machine}'" ;;
-	i386|amd64|mips) ;;
+	i386|amd64|mips|ppc|ppc64) ;;
 	*) err "unsupported ELF arch type: ${ve_machine:-${e_machine}}" ;;
 	esac
 
@@ -871,6 +961,8 @@ read_elf_pht() {
 	ei_data=$(dump_value Elf_Ehdr e_ident.ei_data < "$2")
 	endian=$(decode_elfehdr_eidata "${ei_data}")
 
+	e_machine=$(dump_value Elf_Ehdr e_machine < "$2")
+
 	e_phoff=$(dump_value Elf_Ehdr e_phoff < "$2")
 	e_phnum=$(dump_value Elf_Ehdr e_phnum < "$2")
 	e_phentsize=$(dump_value Elf_Ehdr e_phentsize < "$2")
@@ -912,8 +1004,7 @@ read_elf_pht() {
 		esac
 
 		## parse ElfXX_Phdr.p_type
-		vp_type=$(elf_value ${struct}.p_type ${p_type})
-		vp_type=${vp_type:-${p_type}}
+		vp_type=$(elf_value "${struct}.p_type:::${e_machine}" ${p_type})
 
 		## parse ElfXX_Phdr.p_flags
 		vp_flags=$(elf_flag ${struct}.p_flags ${p_flags})
@@ -962,6 +1053,8 @@ read_elf_dt() {
 	ei_data=$(dump_value Elf_Ehdr e_ident.ei_data < "$2")
 	endian=$(decode_elfehdr_eidata "${ei_data}")
 
+	e_machine=$(dump_value Elf_Ehdr e_machine < "$2")
+
 	dt_offset=$(dump_value Elf_Phdr p_offset ${dt_idx} < "$3")
 	dt_size=$(dump_value Elf_Phdr p_filesz ${dt_idx} < "$3")
 
@@ -1003,7 +1096,7 @@ read_elf_dt() {
 		EOF
 
 		## parse ElfXX_Dyn.d_tag
-		vd_tag=$(elf_value ${struct}.d_tag ${d_tag})
+		vd_tag=$(elf_value "${struct}.d_tag:::${e_machine}" ${d_tag})
 
 		## handle ElfXX_Dyn.d_val
 		vd_val=${d_val}
@@ -1015,13 +1108,32 @@ read_elf_dt() {
 		pltrelsz|relasz|strsz|relsz|relaent|syment|relent|pltpadsz)
 			vd_val=$((d_val))
 		;;
-		moveent|movesz|init_arraysz|fini_arraysz|gnu_conflictsz|gnu_liblistsz)
+		moveent|movesz|init_arraysz|fini_arraysz|gnu_conflictsz)
 			vd_val=$((d_val))
 		;;
-		verdefnum|verneednum|relacount|relcount)
+		gnu_liblistsz|verdefnum|verneednum|relacount|relcount)
 			vd_val=$((d_val))
 		;;
 		gnu_prelinked)
+			## actually it's UNIX timestamp in UTC
+			vd_val=$((d_val))
+		;;
+		mips_flags)
+			vd_val=$(elf_flag "${struct}.d_val+${vd_tag}" ${d_val})
+		;;
+		mips_rld_version|mips_local_gotno|mips_conflictno)
+			vd_val=$((d_val))
+		;;
+		mips_liblistno|mips_symtabno|mips_unrefextno|mips_hipageno)
+			vd_val=$((d_val))
+		;;
+		mips_delta_class_no|mips_delta_instance_no|mips_delta_reloc_no)
+			vd_val=$((d_val))
+		;;
+		mips_delta_sym_no|mips_delta_classsym_no|mips_compact_size)
+			vd_val=$((d_val))
+		;;
+		mips_time_stamp)
 			## actually it's UNIX timestamp in UTC
 			vd_val=$((d_val))
 		;;
