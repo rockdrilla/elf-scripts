@@ -197,7 +197,7 @@ elf_value() {
 
 			PT_GNU_LO=$((PT_LOOS + 0x0474E550))
 			PT_GNU_NUM=4
-			PT_GNU_HI=$((PT_LOOS + PT_GNU_NUM - 1))
+			PT_GNU_HI=$((PT_GNU_LO + PT_GNU_NUM - 1))
 			if in_range $v ${PT_GNU_LO} ${PT_GNU_HI} ; then
 				case $((v - PT_GNU_LO)) in
 				0) c=PT_GNU_EH_FRAME ; p=gnu_eh_frame ;;
