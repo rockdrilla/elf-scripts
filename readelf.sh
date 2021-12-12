@@ -105,24 +105,26 @@ elf_value() {
 	$1
 	EOF
 
+	p=none
+
 	case "${_field}" in
 	Elf_Ehdr.e_ident.ei_class)
 		case "$v" in
-		0) c=ELFCLASSNONE ; p=none  ;;
+		0) c=ELFCLASSNONE           ;;
 		1) c=ELFCLASS32   ; p=32bit ;;
 		2) c=ELFCLASS64   ; p=64bit ;;
 		esac
 	;;
 	Elf_Ehdr.e_ident.ei_data)
 		case "$v" in
-		0) c=ELFDATANONE ; p=none ;;
+		0) c=ELFDATANONE          ;;
 		1) c=ELFDATA2LSB ; p=lsb  ;;
 		2) c=ELFDATA2MSB ; p=msb  ;;
 		esac
 	;;
 	Elf_Ehdr.e_ident.ei_version|Elf_Ehdr.e_version)
 		case "$v" in
-		0) c=EV_NONE    ; p=none ;;
+		0) c=EV_NONE             ;;
 		1) c=EV_CURRENT ; p=1    ;;
 		esac
 	;;
@@ -136,7 +138,7 @@ elf_value() {
 	;;
 	Elf_Ehdr.e_type)
 		case "$v" in
-		0) c=ET_NONE ; p=none ;;
+		0) c=ET_NONE          ;;
 		1) c=ET_REL  ; p=rel  ;;
 		2) c=ET_EXEC ; p=exe  ;;
 		3) c=ET_DYN  ; p=dyn  ;;
@@ -159,7 +161,7 @@ elf_value() {
 		## script recongizes these arches but doesn't "support" them
 		## head to "${ve_machine}" for details
 		case "$v" in
-		  0) c=EM_NONE    ; p=none  ;;
+		  0) c=EM_NONE              ;;
 		  3) c=EM_386     ; p=i386  ;;
 		  8) c=EM_MIPS    ; p=mips  ;;
 		 20) c=EM_PPC     ; p=ppc   ;;
@@ -194,10 +196,10 @@ elf_value() {
 			p=$(base_value $v _os_spec ${PT_LOOS})
 
 			PT_GNU_LO=$((PT_LOOS + 0x0474E550))
-			PT_GNU_HI=$((PT_LOOS + 0x0474E553))
+			PT_GNU_NUM=4
+			PT_GNU_HI=$((PT_LOOS + PT_GNU_NUM - 1))
 			if in_range $v ${PT_GNU_LO} ${PT_GNU_HI} ; then
-				v=$((v - PT_GNU_LO))
-				case "$v" in
+				case $((v - PT_GNU_LO)) in
 				0) c=PT_GNU_EH_FRAME ; p=gnu_eh_frame ;;
 				1) c=PT_GNU_STACK    ; p=gnu_stack    ;;
 				2) c=PT_GNU_RELRO    ; p=gnu_relro    ;;
@@ -271,16 +273,16 @@ elf_value() {
 			p=$(base_value $v _os_spec ${DT_LOOS})
 		fi
 
+		## top to bottom allocation!
 		DT_VALRNGHI=0x6FFFFDFF
 		# DT_VALNUM=12 ; DT_VALRNGLO=$((DT_VALRNGHI - DT_VALNUM + 1))
 		DT_VALRNGLO=0x6FFFFD00
 		if in_range $v ${DT_VALRNGLO} ${DT_VALRNGHI} ; then
-			## top to bottom allocation!
-			v=$((DT_VALRNGHI - v))
-			c="DT_VALTAG $v"
-			p="_valtag $v"
+			_v=$((DT_VALRNGHI - v))
+			c="DT_VALTAG ${_v}"
+			p="_valtag ${_v}"
 
-			case "$v" in
+			case "${_v}" in
 			 0) c=DT_SYMINENT       ; p=syminent       ;;
 			 1) c=DT_SYMINSZ        ; p=syminsz        ;;
 			 2) c=DT_POSFLAG_1      ; p=posflag_1      ;;
@@ -296,16 +298,16 @@ elf_value() {
 			esac
 		fi
 
+		## top to bottom allocation!
 		DT_ADDRRNGHI=0x6FFFFEFF
 		# DT_ADDRNUM=11 ; DT_ADDRRNGLO=$((DT_ADDRRNGHI - DT_ADDRNUM + 1))
 		DT_ADDRRNGLO=0x6FFFFE00
 		if in_range $v ${DT_ADDRRNGLO} ${DT_ADDRRNGHI} ; then
-			## top to bottom allocation!
-			v=$((DT_ADDRRNGHI - v))
-			c="DT_ADDRTAG $v"
-			p="_addrtag $v"
+			_v=$((DT_ADDRRNGHI - v))
+			c="DT_ADDRTAG ${_v}"
+			p="_addrtag ${_v}"
 
-			case "$v" in
+			case "${_v}" in
 			 0) c=DT_SYMINFO      ; p=syminfo      ;;
 			 1) c=DT_MOVETAB      ; p=movetab      ;;
 			 2) c=DT_PLTPAD       ; p=pltpad       ;;
@@ -320,16 +322,16 @@ elf_value() {
 			esac
 		fi
 
+		## top to bottom allocation!
 		DT_VERSIONHI=0x6FFFFFFF
 		DT_VERSIONTAGNUM=16
 		DT_VERSIONLO=$((DT_VERSIONHI - DT_VERSIONTAGNUM + 1))
 		if in_range $v ${DT_VERSIONLO} ${DT_VERSIONHI} ; then
-			## top to bottom allocation!
-			v=$((DT_VERSIONHI - v))
-			c="DT_VERSIONTAG $v"
-			p="_versiontag $v"
+			_v=$((DT_VERSIONHI - v))
+			c="DT_VERSIONTAG ${_v}"
+			p="_versiontag ${_v}"
 
-			case "$v" in
+			case "${_v}" in
 			 0) c=DT_VERNEEDNUM ; p=verneednum ;;
 			 1) c=DT_VERNEED    ; p=verneed    ;;
 			 2) c=DT_VERDEFNUM  ; p=verdefnum  ;;
@@ -346,18 +348,18 @@ elf_value() {
 			c=$(base_value $v DT_LOPROC  ${DT_LOPROC})
 			p=$(base_value $v _proc_spec ${DT_LOPROC})
 
-			## nobody knows why Sun put these sections in proc-specific range
-			## ("because we CAN", lol)
+			## top to bottom allocation!
+			## NB: nobody knows why Sun put these sections
+			##     in proc-specific range ("because we CAN", lol)
 			DT_EXTRAHI=0x7FFFFFFF
 			DT_EXTRANUM=3
 			DT_EXTRALO=$((DT_EXTRAHI - DT_EXTRANUM + 1))
 			if in_range $v ${DT_EXTRALO} ${DT_EXTRAHI} ; then
-				## top to bottom allocation!
-				v=$((DT_EXTRAHI - v))
-				c="DT_EXTRATAG $v"
-				p="_extratag $v"
+				_v=$((DT_EXTRAHI - v))
+				c="DT_EXTRATAG ${_v}"
+				p="_extratag ${_v}"
 
-				case "$v" in
+				case "${_v}" in
 				0) c=DT_FILTER    ; p=filter    ;;
 				1) c=DT_USED      ; p=used      ;;
 				2) c=DT_AUXILIARY ; p=auxiliary ;;
@@ -366,15 +368,13 @@ elf_value() {
 
 			case "${_arch}" in
 			ppc)
-				v=$((v - DT_LOPROC))
-				case "$v" in
+				case $((v - DT_LOPROC)) in
 				0) c=DT_PPC_GOT ; p=got ;;
 				1) c=DT_PPC_OPT ; p=opt ;;
 				esac
 			;;
 			ppc64)
-				v=$((v - DT_LOPROC))
-				case "$v" in
+				case $((v - DT_LOPROC)) in
 				0) c=DT_PPC64_GLINK ; p=got   ;;
 				1) c=DT_PPC64_OPD   ; p=opd   ;;
 				2) c=DT_PPC64_OPDSZ ; p=opdsz ;;
@@ -576,12 +576,18 @@ elf_flag() {
 			$((1 <<  8))  EF_MIPS_32BITMODE      32bitmode
 			$((1 <<  9))  EF_MIPS_FP64           fp64
 			$((1 << 10))  EF_MIPS_NAN2008        nan2008
+			EOF
+
+
+			while read -r f_v f_c f_p ; do
+				IFS='|' read -r v c p <<-EOF
+				$(elf_xflag $v "$c" "$p" ${f_v} ${f_c} ${f_p})
+				EOF
+			done <<-EOF
 			$((1 << 25))  EF_MIPS_MICROMIPS      ase_micromips
 			$((1 << 26))  EF_MIPS_ARCH_ASE_M16   ase_mips16
 			$((1 << 27))  EF_MIPS_ARCH_ASE_MDMX  ase_mdmx
 			EOF
-
-
 			EF_MIPS_ARCH_ASE=0x0F000000
 			_v=$(( (v & EF_MIPS_ARCH_ASE) >> 24))
 			_c='' ; _p=''
@@ -598,9 +604,9 @@ elf_flag() {
 				$(elf_xflag $v "$c" "$p" ${f_v} ${f_c} ${f_p})
 				EOF
 			done <<-EOF
-			$((0x80000000))  EF_PPC_EMB              emb
-			$((0x00010000))  EF_PPC_RELOCATABLE      relocatable
-			$((0x00008000))  EF_PPC_RELOCATABLE_LIB  relocatable_lib
+			$((1 << 31))  EF_PPC_EMB              emb
+			$((1 << 12))  EF_PPC_RELOCATABLE      relocatable
+			$((1 << 15))  EF_PPC_RELOCATABLE_LIB  relocatable_lib
 			EOF
 		;;
 		esac
