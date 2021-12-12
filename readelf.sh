@@ -214,8 +214,8 @@ elf_value() {
 				PT_GNU_MBIND_HI=$((PT_GNU_MBIND_LO + PT_GNU_MBIND_NUM - 1))
 
 				if in_range $v ${PT_GNU_MBIND_LO} ${PT_GNU_MBIND_HI} ; then
-					c=$(base_value $v PT_GNU_MBIND_LO ${PT_GNU_MBIND_LO})
-					p=$(base_value $v _gnu_mbind      ${PT_GNU_MBIND_LO})
+					c=$(base_value $v PT_GNU_MBIND ${PT_GNU_MBIND_LO})
+					p=$(base_value $v gnu_mbind    ${PT_GNU_MBIND_LO})
 				fi
 			;;
 			esac
